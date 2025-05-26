@@ -25,11 +25,7 @@
                 // Make the POST request with browser credentials (avoiding preflight)
                 const response = await fetch('http://localhost:1337/admin', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(graphqlQuery)
+                    credentials: 'include'
                 });
                 
                 // Get response text
