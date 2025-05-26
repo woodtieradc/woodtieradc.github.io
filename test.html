@@ -23,8 +23,8 @@
                 };
                 
                 // Make the POST request with browser credentials (avoiding preflight)
-                const response = await fetch('http://localhost:3000/graphql', {
-                    method: 'POST',
+                const response = await fetch('http://localhost:1337/admin', {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'text/plain'
                     },
